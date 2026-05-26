@@ -331,6 +331,35 @@
   .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
   .btn.ghost:hover { border-color: var(--ink); }
   .btn svg { width: 14px; height: 14px; }
+  @media (max-width: 700px) {
+    main {
+      padding: 28px 24px 72px;
+      overflow: hidden;
+    }
+    section { padding: 56px 0; }
+    .hello {
+      flex-wrap: wrap;
+      align-items: flex-start;
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      line-height: 1.4;
+    }
+    h1.hero-title {
+      font-size: 42px;
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .hero-blurb { font-size: 16px; }
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 20px;
+      padding: 20px 0;
+    }
+    .hero-meta .cell .v { font-size: 19px; }
+    .hero-cta { gap: 10px; }
+    .btn { padding: 12px 18px; }
+  }
 
   /* ---------- About / cards ---------- */
   .twocol {
