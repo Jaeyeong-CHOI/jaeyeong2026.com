@@ -151,8 +151,6 @@ const CONFS = [
   { dt: '21 Jun 2025', nm: 'Build with AI', hs: 'MODULABS · AIFFEL' },
 ];
 
-const CV_URL = 'uploads/cv.pdf';
-
 // ============= ICONS =============
 const Arrow = () => (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 12 L12 4 M6 4 H12 V10" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -232,13 +230,10 @@ function Sidebar({ active, go }) {
           <div>DGIST · Computer Science</div>
           <div>Daegu, South Korea</div>
           <div style={{ marginTop: 10 }}>
-            <a href="mailto:jaeyeong2022@dgist.ac.kr">jaeyeong2022@dgist.ac.kr</a>
+            <a href="mailto:jaeyeong2022@gmail.com">jaeyeong2022@gmail.com</a>
           </div>
           <div>
             <a href="https://www.linkedin.com/in/jaeychoi2022/" target="_blank" rel="noopener">linkedin.com/in/jaeychoi2022</a>
-          </div>
-          <div>
-            <a href={CV_URL} target="_blank" rel="noopener">Download CV</a>
           </div>
         </div>
       </div>
@@ -271,8 +266,7 @@ function Hero() {
       </div>
 
       <div className="hero-cta reveal" style={{ animationDelay: '.3s' }}>
-        <a className="btn" href="mailto:jaeyeong2022@dgist.ac.kr"><Mail/>Get in touch</a>
-        <a className="btn ghost" href={CV_URL} target="_blank" rel="noopener">CV<Arrow/></a>
+        <a className="btn" href="mailto:jaeyeong2022@gmail.com"><Mail/>Get in touch</a>
         <a className="btn ghost" href="https://www.linkedin.com/in/jaeychoi2022/" target="_blank" rel="noopener">LinkedIn<Arrow/></a>
       </div>
     </section>
@@ -460,21 +454,13 @@ function Contact() {
           and HCI studies. If any of that overlaps with your work, please reach out.
         </p>
         <div className="contact-links">
-          <a className="contact-link" href="mailto:jaeyeong2022@dgist.ac.kr">
+          <a className="contact-link" href="mailto:jaeyeong2022@gmail.com">
             <span className="lbl">Email</span>
-            <span className="val">jaeyeong2022@dgist.ac.kr</span>
-          </a>
-          <a className="contact-link" href="tel:+821095831171">
-            <span className="lbl">Phone</span>
-            <span className="val">+82 10-9583-1171</span>
+            <span className="val">jaeyeong2022@gmail.com</span>
           </a>
           <a className="contact-link" href="https://www.linkedin.com/in/jaeychoi2022/" target="_blank" rel="noopener">
             <span className="lbl">LinkedIn</span>
             <span className="val">/in/jaeychoi2022</span>
-          </a>
-          <a className="contact-link" href={CV_URL} target="_blank" rel="noopener">
-            <span className="lbl">CV</span>
-            <span className="val">Download PDF</span>
           </a>
         </div>
       </div>
