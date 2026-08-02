@@ -1,8 +1,7 @@
 (() => {
   const toggle = document.querySelector(".nav-toggle");
   const nav = document.querySelector(".site-nav");
-  const navLinks = [...document.querySelectorAll('.site-nav a[href^="#"]')];
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const links = [...document.querySelectorAll('.site-nav a[href^="#"]')];
 
   const setMenu = (open) => {
     if (!toggle || !nav) return;
@@ -15,54 +14,32 @@
     setMenu(toggle.getAttribute("aria-expanded") !== "true");
   });
 
-  navLinks.forEach((link) => link.addEventListener("click", () => setMenu(false)));
+  links.forEach((link) => link.addEventListener("click", () => setMenu(false)));
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") setMenu(false);
   });
 
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 900) setMenu(false);
+    if (window.innerWidth > 820) setMenu(false);
   }, { passive: true });
 
-  const sections = navLinks
-    .map((link) => document.querySelector(link.getAttribute("href")))
-    .filter(Boolean);
+  if ("IntersectionObserver" in window) {
+    const sections = links
+      .map((link) => document.querySelector(link.getAttribute("href")))
+      .filter(Boolean);
 
-  const activeObserver = new IntersectionObserver((entries) => {
-    const visible = entries
-      .filter((entry) => entry.isIntersecting)
-      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-    if (!visible) return;
-
-    navLinks.forEach((link) => {
-      const current = link.getAttribute("href") === "#" + visible.target.id;
-      if (current) link.setAttribute("aria-current", "true");
-      else link.removeAttribute("aria-current");
-    });
-  }, {
-    rootMargin: "-22% 0px -62% 0px",
-    threshold: [0, 0.05, 0.2],
-  });
-
-  sections.forEach((section) => activeObserver.observe(section));
-
-  const revealItems = document.querySelectorAll("[data-reveal]");
-  if (reduceMotion || !("IntersectionObserver" in window)) {
-    revealItems.forEach((item) => item.classList.add("is-visible"));
-  } else {
-    const revealObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        observer.unobserve(entry.target);
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.find((entry) => entry.isIntersecting);
+      if (!visible) return;
+      links.forEach((link) => {
+        const current = link.getAttribute("href") === "#" + visible.target.id;
+        if (current) link.setAttribute("aria-current", "true");
+        else link.removeAttribute("aria-current");
       });
-    }, {
-      rootMargin: "0px 0px -8% 0px",
-      threshold: 0.08,
-    });
+    }, { rootMargin: "-25% 0px -65% 0px" });
 
-    revealItems.forEach((item) => revealObserver.observe(item));
+    sections.forEach((section) => observer.observe(section));
   }
 
   const year = document.querySelector("#year");
