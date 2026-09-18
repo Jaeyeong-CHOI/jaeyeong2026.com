@@ -375,6 +375,31 @@
     .compact-row p { margin: 0; color: var(--muted); font-size: 11px; }
     .compact-row time, .compact-row .resource-meta { color: var(--muted); font-size: 11px; white-space: nowrap; }
 
+    /* Teaching experience */
+    .teaching-entry {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 180px;
+      gap: 28px;
+      align-items: start;
+      margin-bottom: 30px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid var(--line);
+    }
+    .teaching-date { margin-bottom: 8px; color: var(--muted); font-size: 12px; font-weight: 570; }
+    .teaching-entry h3 { margin-bottom: 6px; color: var(--ink); font-size: 19px; font-weight: 650; line-height: 1.4; }
+    .teaching-org { margin-bottom: 8px; color: var(--accent); font-size: 14px; font-weight: 600; }
+    .teaching-program { margin-bottom: 14px; color: var(--muted); font-size: 13px; }
+    .teaching-entry .plain-list { font-size: 14px; }
+    .teaching-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 16px 0 0; font-size: 13px; font-weight: 600; }
+    .teaching-poster { width: 100%; max-width: 220px; margin: 0; }
+    .teaching-poster a { display: block; }
+    .teaching-poster img { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
+    .teaching-poster figcaption { margin-top: 8px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+    @media (max-width: 620px) {
+      .teaching-entry { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+    }
+
     /* Contact */
     .contact {
       padding-block: 54px;
@@ -681,6 +706,28 @@
         <p class="section-label">Lectures</p>
         <div>
           <h2 class="section-title">Teaching and lecture materials</h2>
+          <article class="teaching-entry" id="ksa-rag-2026">
+            <div>
+              <p class="teaching-date"><time datetime="2026-09-14">Sep 14</time>–<time datetime="2026-09-18">18, 2026</time> · 14:00–18:00 KST · Live online</p>
+              <h3>Building RAG Agents with LLMs</h3>
+              <p class="teaching-org">Instructor · Korean Standards Association (KSA)</p>
+              <p class="teaching-program">2026 ICT Innovation Square Expansion Program · NVIDIA DLI-based Industrial AI Transformation (AX) Challenge</p>
+              <ul class="plain-list">
+                <li>LLM inference interfaces and microservices.</li>
+                <li>LLM pipelines with LangChain, Gradio, and LangServe.</li>
+                <li>RAG agent implementation, modularization, and evaluation.</li>
+              </ul>
+              <p class="teaching-links">
+                <a href="https://ksa.dli-lecture.com/" target="_blank" rel="noopener noreferrer">Course website · ksa.dli-lecture.com ↗</a>
+              </p>
+            </div>
+            <figure class="teaching-poster">
+              <a href="/posters/KSA_NVIDIA_DLI_AX_Challenge_2026.png" target="_blank" rel="noopener noreferrer" aria-label="View the KSA NVIDIA DLI AX Challenge program poster at full size (opens in a new tab)">
+                <img src="/posters/KSA_NVIDIA_DLI_AX_Challenge_2026.png" alt="2026 ICT Innovation Square NVIDIA DLI AX Challenge program poster, including Building RAG Agents with LLMs on September 14–18" width="1260" height="1782" loading="lazy" decoding="async">
+              </a>
+              <figcaption>Program poster · <a href="/posters/KSA_NVIDIA_DLI_AX_Challenge_2026.png" target="_blank" rel="noopener noreferrer">View full size ↗</a></figcaption>
+            </figure>
+          </article>
           <article class="education-item">
             <span class="edu-date">2026 — Present</span>
             <h3>Building RAG Agents with LLMs</h3>
