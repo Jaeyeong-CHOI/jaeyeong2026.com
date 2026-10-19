@@ -359,6 +359,26 @@
     .project > p { max-width: 760px; margin-bottom: 12px; font-size: 15px; }
     .project ul { margin: 0; padding-left: 19px; color: var(--body); font-size: 14px; }
     .project li { margin-bottom: 5px; }
+    .project-video { margin: 22px 0 0; }
+    .project-video iframe {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 4px;
+      background: var(--soft);
+    }
+    .project-video figcaption {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px 18px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .project-video figcaption a { font-weight: 600; }
 
     /* Education and recognition */
     .education-item + .education-item { margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--line); }
@@ -645,13 +665,20 @@
         <p class="section-label">Projects</p>
         <div>
           <h2 class="section-title">Selected projects and leadership</h2>
-          <article class="project">
+          <article class="project" id="ai-build-week">
             <div class="project-head"><h3>DGIST AI Build Week 2026</h3><span class="project-role">Lead Organizer · Jul 2026</span></div>
             <p>Initiated and led a two-day, campus-wide AI festival with keynotes, hands-on workshops, sponsor booths, and an overnight team hackathon.</p>
             <ul>
               <li>Recruited and coordinated industry partners including Upstage, Lablup, and UNIVA.</li>
               <li>Designed the full program, including internship pathways at sponsor companies.</li>
             </ul>
+            <figure class="project-video">
+              <iframe src="https://www.youtube-nocookie.com/embed/p3PtTydcsD8" title="2026 DGIST AI Build Week — event highlights by DGIST FICS" width="560" height="315" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+              <figcaption>
+                <span>Event highlights · Video by DGIST FICS</span>
+                <a href="https://www.youtube.com/watch?v=p3PtTydcsD8" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>
+              </figcaption>
+            </figure>
           </article>
           <article class="project">
             <div class="project-head"><h3>Play the LAB (PLAB)</h3><span class="project-role">Project Manager</span></div>
@@ -757,58 +784,7 @@
             <span class="edu-date">2026 — Present</span>
             <h3>Building RAG Agents with LLMs</h3>
             <p class="degree">NVIDIA Deep Learning Institute · DLI Certified Instructor &amp; University Ambassador</p>
-            <p>Lecture slides prepared for the NVIDIA DLI course. Free to use with attribution to the author and source.</p>
-            <div style="margin-top: 14px;">
-              <article class="compact-row">
-                <div>
-                  <h3><a href="/cv/Jae_Y_Choi_Instructor_CV.pdf" target="_blank" rel="noopener noreferrer">NVIDIA DLI Instructor CV (PDF)</a></h3>
-                  <p>Teaching &amp; education experience · Industry experience · Education</p>
-                </div>
-                <time>1 page</time>
-              </article>
-              <article class="compact-row lecture-material">
-                <div>
-                  <h3><a href="/lectures/Introduction_to_LLM.pdf?v=72f602d37d6c" target="_blank" rel="noopener noreferrer">1. Introduction to LLM (PDF)</a></h3>
-                  <p>LLM foundations · Reasoning &amp; Agentic AI · Training · GPU infrastructure</p>
-                </div>
-                <span class="resource-meta">71 pages</span>
-              </article>
-              <article class="compact-row lecture-material">
-                <div>
-                  <h3><a href="/lectures/RAGAS.pdf?v=2b2b866b94a0" target="_blank" rel="noopener noreferrer">2. RAGAS (PDF)</a></h3>
-                  <p>Retrieval-augmented generation evaluation · RAGAS framework</p>
-                </div>
-                <span class="resource-meta">23 pages</span>
-              </article>
-              <article class="compact-row lecture-material">
-                <div>
-                  <h3><a href="/lectures/QuCo-RAG.pdf?v=be01ae72c4dd" target="_blank" rel="noopener noreferrer">3. QuCo RAG (PDF)</a></h3>
-                  <p>Uncertainty estimation · Dynamic retrieval-augmented generation</p>
-                </div>
-                <span class="resource-meta">28 pages</span>
-              </article>
-              <article class="compact-row lecture-material">
-                <div>
-                  <h3><a href="/lectures/Recent-RAG.pdf?v=15482bb3043c" target="_blank" rel="noopener noreferrer">4. Recent RAG (PDF)</a></h3>
-                  <p>Recent RAG research · Learning to search · Process feedback · Web research</p>
-                </div>
-                <span class="resource-meta">20 pages</span>
-              </article>
-              <article class="compact-row lecture-material">
-                <div>
-                  <h3><a href="/lectures/Search-Ranking.pdf?v=5bf1592de44f" target="_blank" rel="noopener noreferrer">5. Search Ranking (PDF)</a></h3>
-                  <p>BM25 · Embeddings · Reranking · Retrieval evaluation</p>
-                </div>
-                <span class="resource-meta">42 pages</span>
-              </article>
-              <article class="compact-row lecture-material">
-                <div>
-                  <h3><a href="/lectures/Product-Building.pdf?v=edd6bab37049" target="_blank" rel="noopener noreferrer">6. Product Building (PDF)</a></h3>
-                  <p>Agentic coding · Product prototyping · Workshop</p>
-                </div>
-                <span class="resource-meta">38 pages</span>
-              </article>
-            </div>
+            <p>Access lecture materials and course resources on the KSA course website.</p>
           </article>
         </div>
       </div>
