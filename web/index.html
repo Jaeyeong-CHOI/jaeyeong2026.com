@@ -292,24 +292,24 @@
 
     /* Recent news */
     .news-section {
-      background-color: #f8faf5;
-      background-image: radial-gradient(#dce5d8 .7px, transparent .7px);
+      background-color: #f5f9fd;
+      background-image: radial-gradient(#d7e4ef .7px, transparent .7px);
       background-size: 20px 20px;
     }
     .news-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 36px; }
-    .news-header .section-label { margin: 0 0 9px; color: #527146; }
+    .news-header .section-label { margin: 0 0 9px; color: var(--accent); }
     .news-header .section-title {
       margin: 0;
       font-family: "Avenir Next", "Trebuchet MS", ui-rounded, sans-serif;
       font-size: clamp(32px, 4vw, 44px);
       letter-spacing: -.035em;
     }
-    .news-header .section-title span { display: inline-block; color: #799d59; font-size: .75em; transform: rotate(12deg); }
-    .news-year { padding: 7px 14px; border: 1px solid #ceddc5; border-radius: 999px; color: #527146; background: #eef4e8; font-size: 13px; font-weight: 700; }
+    .news-header .section-title span { display: inline-block; color: var(--accent); font-size: .75em; transform: rotate(12deg); }
+    .news-year { padding: 7px 14px; border: 1px solid #c9ddeb; border-radius: 999px; color: var(--accent); background: #e8f2fb; font-size: 13px; font-weight: 700; }
     .news-timeline { margin: 0; padding: 0; list-style: none; }
     .news-item {
-      --news-tint: #eaf3de;
-      --news-border: #ccdcb7;
+      --news-tint: #e8f2fb;
+      --news-border: #c9ddeb;
       position: relative;
       display: grid;
       grid-template-columns: 112px 48px minmax(0, 1fr);
@@ -324,14 +324,10 @@
       left: 151px;
       width: 2px;
       height: calc(100% + 20px);
-      background: #cbdcc7;
+      background: #bfd5e8;
       pointer-events: none;
     }
-    .news-item:nth-child(2) { --news-tint: #e6f1fb; --news-border: #c9ddeb; }
-    .news-item:nth-child(3) { --news-tint: #fff0df; --news-border: #ead7bd; }
-    .news-item:nth-child(4) { --news-tint: #e4f3ed; --news-border: #c6dfd3; }
-    .news-item:nth-child(5) { --news-tint: #f0eafa; --news-border: #dcd0ea; }
-    .news-date { grid-column: 1; grid-row: 1; display: block; margin: 23px 0 0; color: #54634f; font-size: 12px; font-weight: 650; text-align: right; }
+    .news-date { grid-column: 1; grid-row: 1; display: block; margin: 23px 0 0; color: #4b6680; font-size: 12px; font-weight: 650; text-align: right; }
     .news-marker {
       grid-column: 2;
       grid-row: 1;
@@ -342,7 +338,7 @@
       width: 48px;
       height: 48px;
       margin-top: 12px;
-      border: 4px solid #f8faf5;
+      border: 4px solid #f5f9fd;
       border-radius: 50%;
       background: var(--news-tint);
       box-shadow: 0 0 0 1px var(--news-border);
@@ -363,11 +359,11 @@
       border: 1px solid var(--news-border);
       border-radius: 20px;
       background: #ffffff;
-      box-shadow: 0 4px 0 #274c2710;
+      box-shadow: 0 4px 0 #0b4a7d0c;
     }
     .news-card h3 {
       margin: 0;
-      color: #273526;
+      color: var(--accent-dark);
       font-family: "Avenir Next", "Trebuchet MS", ui-rounded, sans-serif;
       font-size: clamp(20px, 2.2vw, 24px);
       font-weight: 650;
@@ -375,7 +371,7 @@
       letter-spacing: -.02em;
       overflow-wrap: anywhere;
     }
-    .news-photo { display: block; min-width: 0; padding: 6px 6px 12px; border: 1px solid #e5e7e0; border-radius: 10px; background: #fff; box-shadow: 0 3px 8px #24351b0b; transform: rotate(-1.5deg); }
+    .news-photo { display: block; min-width: 0; padding: 6px 6px 12px; border: 1px solid #dce5ed; border-radius: 10px; background: #fff; box-shadow: 0 3px 8px #0b4a7d0b; transform: rotate(-1.5deg); }
     .news-item:nth-child(even) .news-photo { transform: rotate(1.5deg); }
     .news-photo img { display: block; width: 100%; height: auto; border-radius: 5px; }
 
