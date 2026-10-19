@@ -289,24 +289,6 @@
       font-weight: 650;
     }
     .interest p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .working-paper {
-      margin-top: 36px;
-      padding: 24px 26px;
-      background: var(--soft);
-      border-left: 3px solid var(--accent);
-    }
-    .working-paper .status {
-      margin-bottom: 8px;
-      color: var(--accent);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-    .working-paper h3 { margin-bottom: 8px; color: var(--ink); font-size: 18px; line-height: 1.4; }
-    .working-paper p { margin: 0; color: var(--body); font-size: 14px; }
-    .working-paper ul { margin: 12px 0 0; padding-left: 19px; color: var(--body); font-size: 14px; }
-    .working-paper li + li { margin-top: 5px; }
 
     /* Rows */
     .rows { border-top: 1px solid var(--ink); }
@@ -515,7 +497,6 @@
       <a class="brand" href="#top">Jae Y. Choi <span>AI Research</span></a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation"></button>
       <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
-        <a href="#research">Research</a>
         <a href="#experience">Experience</a>
         <a href="#projects">Projects</a>
         <a href="#education">Education</a>
@@ -584,39 +565,6 @@
       </div>
     </section>
 
-    <section class="section" id="research">
-      <div class="container section-layout">
-        <p class="section-label">Research</p>
-        <div>
-          <h2 class="section-title">Research and manuscripts</h2>
-          <article class="working-paper" id="vam-t">
-            <p class="status">Manuscript in preparation · Co-first author · DGIST UGRP 2026</p>
-            <h3>VAM-T: Visual-Audio Temporal Mismatch Dataset for Video Temporal Grounding</h3>
-            <p>A dataset with controlled audio-visual temporal shifts and independent audio and visual targets, designed to reveal grounding failures hidden by aligned inputs.</p>
-            <ul>
-              <li>3,316 videos and 23,214 queries for training and evaluating temporal grounding under audio-visual mismatch.</li>
-              <li>VAM-T-Qwen combines supervised fine-tuning and modality-aware GRPO on Qwen2.5-Omni-7B, achieving 0.6409 test mIoU.</li>
-              <li>Improved all five evaluated metrics across four external benchmarks in duration-controlled zero-shot tests against the Qwen2.5-Omni-7B base model.</li>
-            </ul>
-            <div style="margin-top: 14px;">
-              <div class="compact-row">
-                <div>
-                  <h4><a href="/posters/VAM-T_UGRP_Conference_2026.pdf" target="_blank" rel="noopener noreferrer">VAM-T · UGRP Conference Poster (PDF)</a></h4>
-                  <p>2026 UGRP Conference · Dataset, mismatch diagnosis, model training, and evaluation results</p>
-                </div>
-                <span class="resource-meta">1 page</span>
-              </div>
-            </div>
-          </article>
-          <article class="working-paper">
-            <p class="status">Manuscript in preparation · Second author</p>
-            <h3>Interdisciplinary identities of HCI researchers</h3>
-            <p>Examining how diverse academic backgrounds shape research approaches and contributions in HCI. Targeting submission to the ACM CHI Conference.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
     <section class="section" id="experience">
       <div class="container section-layout">
         <p class="section-label">Experience</p>
@@ -632,7 +580,11 @@
               <div><h3>DLI Certified Instructor <span class="current">Current</span></h3><p class="org">NVIDIA Deep Learning Institute</p><p class="desc">Certified instructor for the <cite>Building RAG Agents with LLMs</cite> course.</p></div>
             </article>
             <article class="row">
-              <time datetime="2025-10/2026-07">Oct 2025 — Jul 2026</time>
+              <time datetime="2026-02">Feb 2026 — Present</time>
+              <div><h3>University Ambassador <span class="current">Current</span></h3><p class="org">NVIDIA Deep Learning Institute</p></div>
+            </article>
+            <article class="row">
+              <time datetime="2025-10/2026-08">Oct 2025 — Aug 2026</time>
               <div><h3>Research Intern</h3><p class="org">LaMI Lab, DGIST</p><p class="desc">Conducted research on large language models and multimodal systems.</p></div>
             </article>
             <article class="row">
@@ -644,11 +596,11 @@
               <div><h3>Research Intern</h3><p class="org">SEMES · Smart EQ SW Center</p><p class="desc">Conducted R&amp;D for an LLM agent service for semiconductor manufacturing equipment. Built multi-agent systems with LangChain and researched RAG-based domain knowledge methods.</p></div>
             </article>
             <article class="row">
-              <time datetime="2025-03/2025-08">Mar — Aug 2025</time>
+              <time datetime="2025-03/2025-09">Mar — Sep 2025</time>
               <div><h3>Research Intern</h3><p class="org">DIAG · Yonsei University</p><p class="desc">Studied the interdisciplinary identities of HCI researchers and contributed to an ACM CHI manuscript in preparation.</p></div>
             </article>
             <article class="row">
-              <time datetime="2023-09/2024-06">Sep 2023 — Jun 2024</time>
+              <time datetime="2023-08/2024-06">Aug 2023 — Jun 2024</time>
               <div><h3>Research Intern</h3><p class="org">DIAG · DGIST</p><p class="desc">Supported an AI-driven audit system, augmented linguistic corpus data for an NIA-funded project, and reviewed HCI methodology literature.</p></div>
             </article>
             <article class="row">
@@ -781,7 +733,7 @@
             </figure>
           </article>
           <article class="education-item">
-            <span class="edu-date">2026 — Present</span>
+            <span class="edu-date">Feb 2026 — Present</span>
             <h3>Building RAG Agents with LLMs</h3>
             <p class="degree">NVIDIA Deep Learning Institute · DLI Certified Instructor &amp; University Ambassador</p>
             <p>Access lecture materials and course resources on the KSA course website.</p>
