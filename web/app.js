@@ -21,7 +21,7 @@
   });
 
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 820) setMenu(false);
+    if (window.innerWidth > 1000) setMenu(false);
   }, { passive: true });
 
   if ("IntersectionObserver" in window) {

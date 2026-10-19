@@ -138,8 +138,19 @@
     .intro-grid {
       display: grid;
       grid-template-columns: minmax(0, 1.65fr) minmax(250px, .75fr);
-      gap: clamp(50px, 8vw, 96px);
+      grid-template-areas: "copy portrait" "meta meta";
+      gap: 42px clamp(50px, 8vw, 96px);
       align-items: start;
+    }
+    .intro-copy { grid-area: copy; }
+    .profile-portrait {
+      grid-area: portrait;
+      display: block;
+      width: 100%;
+      max-width: 250px;
+      height: auto;
+      justify-self: end;
+      border-radius: 4px;
     }
     .eyebrow {
       margin-bottom: 18px;
@@ -193,12 +204,15 @@
     .button.primary { color: var(--white); background: var(--accent); border-color: var(--accent); }
     .button.primary:hover { color: var(--white); background: var(--accent-dark); }
     .profile-meta {
-      margin: 3px 0 0;
+      grid-area: meta;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 1.2fr);
+      gap: 0 20px;
+      margin: 0;
       padding: 0;
       border-top: 2px solid var(--ink);
-      list-style: none;
     }
-    .profile-meta li {
+    .profile-meta > div {
       padding: 15px 0;
       border-bottom: 1px solid var(--line);
     }
@@ -216,6 +230,7 @@
       font-size: 14px;
       font-weight: 550;
       line-height: 1.5;
+      overflow-wrap: anywhere;
     }
 
     /* Sections */
@@ -422,7 +437,8 @@
     }
     .footer-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 
-    @media (max-width: 820px) {
+    @media (max-width: 1000px) {
+      .profile-meta { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .nav-toggle { display: block; }
       .site-nav {
         position: absolute;
@@ -440,8 +456,11 @@
       .site-nav.is-open { display: flex; }
       .site-nav a { padding: 12px 0; border-bottom: 1px solid var(--line); }
       .site-nav .cv-nav { margin-top: 10px; padding: 10px 12px; text-align: center; border: 0; }
-      .intro-grid { grid-template-columns: 1fr; gap: 42px; }
-      .profile-meta { max-width: 600px; }
+    }
+
+    @media (max-width: 820px) {
+      .intro-grid { grid-template-columns: 1fr; grid-template-areas: "portrait" "copy" "meta"; gap: 32px; }
+      .profile-portrait { max-width: 176px; justify-self: start; }
       .section-layout { grid-template-columns: 1fr; gap: 18px; }
       .interests { grid-template-columns: 1fr; }
       .interest { padding: 20px 0; }
@@ -453,6 +472,7 @@
       html { scroll-padding-top: 68px; }
       .brand span { display: none; }
       .intro { padding-top: 48px; }
+      .profile-meta { grid-template-columns: 1fr; }
       h1 { font-size: 45px; }
       .bio { font-size: 16px; }
       .row { grid-template-columns: 1fr; gap: 7px; }
@@ -489,7 +509,7 @@
   <main id="main">
     <section class="intro" id="top">
       <div class="container intro-grid">
-        <div>
+        <div class="intro-copy">
           <p class="eyebrow">NLP &amp; AI Research · 최재영</p>
           <h1>Jae Y. Choi</h1>
           <p class="role">Computer Science undergraduate at DGIST</p>
@@ -506,12 +526,13 @@
             <a class="button" href="https://www.linkedin.com/in/jaeychoi2022/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
           </div>
         </div>
+        <img class="profile-portrait" src="/images/jaeyeong-choi-profile.png" alt="Portrait of Jae Y. Choi" width="1120" height="1402" fetchpriority="high">
         <dl class="profile-meta">
-          <li><dt>Affiliation</dt><dd>DGIST<br>Computer Science</dd></li>
-          <li><dt>Research areas</dt><dd>LLMs · Multimodal AI · HCI</dd></li>
-          <li><dt>Education</dt><dd>B.S. expected February 2028<br>GPA 3.79</dd></li>
-          <li><dt>Location</dt><dd>Daegu, South Korea</dd></li>
-          <li><dt>Contact</dt><dd><a href="mailto:jaeyeong2022@gmail.com">jaeyeong2022@gmail.com</a></dd></li>
+          <div><dt>Affiliation</dt><dd>DGIST<br>Computer Science</dd></div>
+          <div><dt>Research areas</dt><dd>LLMs · Multimodal AI · HCI</dd></div>
+          <div><dt>Education</dt><dd>B.S. expected February 2028<br>GPA 3.79</dd></div>
+          <div><dt>Location</dt><dd>Daegu, South Korea</dd></div>
+          <div><dt>Contact</dt><dd><a href="mailto:jaeyeong2022@gmail.com">jaeyeong2022@gmail.com</a></dd></div>
         </dl>
       </div>
     </section>
@@ -812,10 +833,10 @@
   <footer>
     <div class="container footer-row">
       <span>© <span id="year">2026</span> Jae Y. Choi</span>
-      <span>Last updated September 2026</span>
+      <span>Last updated October 2026</span>
     </div>
   </footer>
 
-  <script src="app.js" defer></script>
+  <script src="app.js?v=20261019" defer></script>
 </body>
 </html>
