@@ -298,13 +298,6 @@
     .paper-authors { margin-bottom: 5px; font-size: 14px; line-height: 1.8; }
     .paper-authors strong { color: var(--ink); }
     .paper-note { margin-bottom: 18px; color: var(--muted); font-size: 12px; }
-    .paper-summary { margin-bottom: 14px; font-size: 15px; }
-    .paper-facts { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 22px; padding: 0; list-style: none; color: var(--accent); font-size: 13px; }
-    .paper-links { display: flex; flex-wrap: wrap; gap: 10px; }
-    .paper-figure { margin: 28px 0 0; }
-    .paper-figure a { display: block; }
-    .paper-figure img { display: block; width: 100%; height: auto; }
-    .paper-figure figcaption { margin-top: 10px; color: var(--muted); font-size: 12px; }
 
     /* Recent news */
     .news-section {
@@ -759,27 +752,10 @@
         <div>
           <h2 class="section-title" id="research-title">Submitted research</h2>
           <article class="paper" id="timeduet" aria-labelledby="timeduet-title">
-            <p class="paper-meta"><span class="paper-status">Under review · ICASSP 2027</span><span>Co-first author · 2026</span></p>
+            <p class="paper-meta"><span class="paper-status">Under review · ICASSP 2027</span></p>
             <h3 id="timeduet-title">TimeDuet: A Benchmark for Audio-Visual Temporal Grounding on Misaligned Streams</h3>
             <p class="paper-authors">Sihyeong Kim*, <strong>Jaeyeong Choi*</strong>, Joohyun Oh*, Taeyeong Jeong*, Bomin Kang*, Daehee Park, and Jisoo Mok</p>
             <p class="paper-note">* Equal contribution · DGIST &amp; Hanyang University</p>
-            <p class="paper-summary">A benchmark with controlled audio-visual offsets and separate temporal annotations that reveals grounding failures hidden by aligned inputs. TimeDuet-Qwen combines supervised fine-tuning and modality-aware reinforcement learning to improve audio-visual localization.</p>
-            <ul class="paper-facts" aria-label="TimeDuet at a glance">
-              <li><strong>3,316</strong> videos</li>
-              <li><strong>23,214</strong> queries</li>
-              <li><strong>0.641</strong> test mIoU · TimeDuet-Qwen</li>
-            </ul>
-            <div class="paper-links" aria-label="Public TimeDuet resources">
-              <a class="button primary" href="https://github.com/TimeDuet/TimeDuet" target="_blank" rel="noopener noreferrer">GitHub · Code ↗</a>
-              <a class="button" href="https://huggingface.co/datasets/TimeDuet/TimeDuet" target="_blank" rel="noopener noreferrer">Hugging Face · Dataset ↗</a>
-              <a class="button" href="https://huggingface.co/TimeDuet/TimeDuet-Qwen" target="_blank" rel="noopener noreferrer">Hugging Face · Model adapter ↗</a>
-            </div>
-            <figure class="paper-figure">
-              <a href="/images/timeduet-overview.png" target="_blank" rel="noopener noreferrer" aria-label="View the TimeDuet benchmark overview at full size (opens in a new tab)">
-                <img src="/images/timeduet-overview.png" alt="TimeDuet separates audio and visual intervals, revealing that a prediction matching the visual interval misses the final audio-only portion." width="1400" height="524" loading="lazy" decoding="async">
-              </a>
-              <figcaption>Separate audio and visual intervals expose errors that a single reference interval can hide.</figcaption>
-            </figure>
           </article>
         </div>
       </div>
