@@ -97,7 +97,7 @@
     .site-nav {
       display: flex;
       align-items: center;
-      gap: 28px;
+      gap: 18px;
     }
     .site-nav a {
       color: var(--body);
@@ -290,6 +290,22 @@
     }
     .interest p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
 
+    /* Submitted research */
+    .paper { padding-top: 24px; border-top: 2px solid var(--accent); }
+    .paper-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 16px; color: var(--muted); font-size: 12px; font-weight: 600; }
+    .paper-status { padding: 5px 10px; border-radius: 4px; color: var(--accent); background: #e8f2fb; }
+    .paper h3 { margin-bottom: 14px; color: var(--ink); font-size: clamp(22px, 2.5vw, 27px); font-weight: 650; line-height: 1.35; letter-spacing: -.02em; }
+    .paper-authors { margin-bottom: 5px; font-size: 14px; line-height: 1.8; }
+    .paper-authors strong { color: var(--ink); }
+    .paper-note { margin-bottom: 18px; color: var(--muted); font-size: 12px; }
+    .paper-summary { margin-bottom: 14px; font-size: 15px; }
+    .paper-facts { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 22px; padding: 0; list-style: none; color: var(--accent); font-size: 13px; }
+    .paper-links { display: flex; flex-wrap: wrap; gap: 10px; }
+    .paper-figure { margin: 28px 0 0; }
+    .paper-figure a { display: block; }
+    .paper-figure img { display: block; width: 100%; height: auto; }
+    .paper-figure figcaption { margin-top: 10px; color: var(--muted); font-size: 12px; }
+
     /* Recent news */
     .news-section {
       background-color: #f5f9fd;
@@ -371,6 +387,7 @@
       letter-spacing: -.02em;
       overflow-wrap: anywhere;
     }
+    .news-card--text { min-height: 0; grid-template-columns: minmax(0, 1fr); }
     .news-photo { display: block; min-width: 0; padding: 6px 6px 12px; border: 1px solid #dce5ed; border-radius: 10px; background: #fff; box-shadow: 0 3px 8px #0b4a7d0b; transform: rotate(-1.5deg); }
     .news-item:nth-child(even) .news-photo { transform: rotate(1.5deg); }
     .news-photo img { display: block; width: 100%; height: auto; border-radius: 5px; }
@@ -595,6 +612,7 @@
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation"></button>
       <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
         <a href="#news">News</a>
+        <a href="#research">Research</a>
         <a href="#experience">Experience</a>
         <a href="#projects">Projects</a>
         <a href="#education">Education</a>
@@ -666,6 +684,13 @@
               </a>
             </article>
           </li>
+          <li class="news-item" id="timeduet-submission-2026">
+            <time class="news-date" datetime="2026-09-24">Sep 24, 2026</time>
+            <span class="news-marker" aria-hidden="true">📄</span>
+            <article class="news-card news-card--text">
+              <h3>Submitted TimeDuet to ICASSP 2027.</h3>
+            </article>
+          </li>
           <li class="news-item">
             <span class="news-date"><time datetime="2026-09-14">Sep 14</time>–<time datetime="2026-09-18">18, 2026</time></span>
             <span class="news-marker" aria-hidden="true">📚</span>
@@ -724,6 +749,38 @@
               <p>Interdisciplinary research practices and the relationship between AI systems and human needs.</p>
             </article>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="research" aria-labelledby="research-title">
+      <div class="container section-layout">
+        <p class="section-label">Research</p>
+        <div>
+          <h2 class="section-title" id="research-title">Submitted research</h2>
+          <article class="paper" id="timeduet" aria-labelledby="timeduet-title">
+            <p class="paper-meta"><span class="paper-status">Under review · ICASSP 2027</span><span>Co-first author · 2026</span></p>
+            <h3 id="timeduet-title">TimeDuet: A Benchmark for Audio-Visual Temporal Grounding on Misaligned Streams</h3>
+            <p class="paper-authors">Sihyeong Kim*, <strong>Jaeyeong Choi*</strong>, Joohyun Oh*, Taeyeong Jeong*, Bomin Kang*, Daehee Park, and Jisoo Mok</p>
+            <p class="paper-note">* Equal contribution · DGIST &amp; Hanyang University</p>
+            <p class="paper-summary">A benchmark with controlled audio-visual offsets and separate temporal annotations that reveals grounding failures hidden by aligned inputs. TimeDuet-Qwen combines supervised fine-tuning and modality-aware reinforcement learning to improve audio-visual localization.</p>
+            <ul class="paper-facts" aria-label="TimeDuet at a glance">
+              <li><strong>3,316</strong> videos</li>
+              <li><strong>23,214</strong> queries</li>
+              <li><strong>0.641</strong> test mIoU · TimeDuet-Qwen</li>
+            </ul>
+            <div class="paper-links" aria-label="Public TimeDuet resources">
+              <a class="button primary" href="https://github.com/TimeDuet/TimeDuet" target="_blank" rel="noopener noreferrer">GitHub · Code ↗</a>
+              <a class="button" href="https://huggingface.co/datasets/TimeDuet/TimeDuet" target="_blank" rel="noopener noreferrer">Hugging Face · Dataset ↗</a>
+              <a class="button" href="https://huggingface.co/TimeDuet/TimeDuet-Qwen" target="_blank" rel="noopener noreferrer">Hugging Face · Model adapter ↗</a>
+            </div>
+            <figure class="paper-figure">
+              <a href="/images/timeduet-overview.png" target="_blank" rel="noopener noreferrer" aria-label="View the TimeDuet benchmark overview at full size (opens in a new tab)">
+                <img src="/images/timeduet-overview.png" alt="TimeDuet separates audio and visual intervals, revealing that a prediction matching the visual interval misses the final audio-only portion." width="1400" height="524" loading="lazy" decoding="async">
+              </a>
+              <figcaption>Separate audio and visual intervals expose errors that a single reference interval can hide.</figcaption>
+            </figure>
+          </article>
         </div>
       </div>
     </section>
