@@ -1,35 +1,14 @@
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 
-const DEFAULT_LIMITS = Object.freeze({
-  ipPerMinute: 5,
-  ipPerDay: 20,
-  globalPerMinute: 10,
-  globalPerDay: 200,
-  globalPerMonth: 3000,
-  dailyBudgetMicrousd: 250_000,
-  monthlyBudgetMicrousd: 3_000_000,
-});
-const KST_OFFSET = 9 * 60 * 60 * 1000;
+export const RATE_LIMIT_PER_MINUTE = 5;
+const DEFAULT_LIMITS = Object.freeze({ globalPerMinute: RATE_LIMIT_PER_MINUTE });
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 function positiveInteger(value, name) {
   if (!Number.isSafeInteger(value) || value <= 0) {
     throw new TypeError(`${name} must be a positive safe integer.`);
   }
-}
-
-function kstWindow(now) {
-  const date = new Date(now + KST_OFFSET);
-  const year = date.getUTCFullYear();
-  const month = date.getUTCMonth();
-  const dayStart = Date.UTC(year, month, date.getUTCDate()) - KST_OFFSET;
-  return {
-    dayStart,
-    dayEnd: dayStart + DAY_MS,
-    monthStart: Date.UTC(year, month, 1) - KST_OFFSET,
-    monthEnd: Date.UTC(year, month + 1, 1) - KST_OFFSET,
-  };
 }
 
 function blocked(code, message, resetMs, now) {
@@ -41,9 +20,9 @@ function blocked(code, message, resetMs, now) {
 }
 
 /**
- * Persistent paid-attempt accounting. Pass only a keyed SHA-256 hex identity,
- * never an IP address, cookie value, or conversation text. Each accepted attempt
- * consumes quota before the provider call, even when that provider call fails.
+ * Persistent site-wide paid-attempt accounting. Each accepted attempt consumes
+ * the shared minute quota before the provider call, even if that call fails.
+ * No user/network identity is collected. Costs are diagnostics, not a budget cap.
  */
 export class UsageLimiter {
   #db;
@@ -85,71 +64,29 @@ export class UsageLimiter {
     }
   }
 
-  reserve(identity, costMicrousd, now = Date.now()) {
-    if (typeof identity !== 'string' || !/^[a-f0-9]{64}$/i.test(identity)) {
-      throw new TypeError('identity must be a keyed SHA-256 hex digest, not a raw IP address.');
-    }
+  reserve(costMicrousd, now = Date.now()) {
     positiveInteger(costMicrousd, 'costMicrousd');
-    if (!Number.isSafeInteger(now) || now < 0 || !Number.isFinite(new Date(now + KST_OFFSET).getTime())) {
+    if (!Number.isSafeInteger(now) || now < 0 || !Number.isFinite(new Date(now).getTime())) {
       throw new TypeError('now must be a valid nonnegative epoch millisecond integer.');
     }
-    const identityKey = identity.toLowerCase();
-    const { dayStart, dayEnd, monthStart, monthEnd } = kstWindow(now);
-    const minuteStart = now - 60_000;
-    const limit = this.#limits;
-
     this.#db.exec('BEGIN IMMEDIATE');
     try {
-      // The lower bound also includes the last minute of a previous month.
       const totals = this.#db.prepare(`
-        SELECT
-          COALESCE(SUM(created_ms > :minute), 0) AS global_minute,
-          COALESCE(SUM(created_ms >= :day), 0) AS global_day,
-          COALESCE(SUM(created_ms >= :month), 0) AS global_month,
-          COALESCE(SUM(identity = :identity AND created_ms > :minute), 0) AS ip_minute,
-          COALESCE(SUM(identity = :identity AND created_ms >= :day), 0) AS ip_day,
-          COALESCE(SUM(CASE WHEN created_ms >= :day THEN cost_microusd ELSE 0 END), 0) AS cost_day,
-          COALESCE(SUM(CASE WHEN created_ms >= :month THEN cost_microusd ELSE 0 END), 0) AS cost_month,
-          MIN(CASE WHEN created_ms > :minute THEN created_ms END) AS global_oldest,
-          MIN(CASE WHEN identity = :identity AND created_ms > :minute THEN created_ms END) AS ip_oldest
-        FROM requests WHERE created_ms >= :start AND created_ms <= :now
-      `).get({
-        identity: identityKey, minute: minuteStart, day: dayStart,
-        month: monthStart, start: Math.min(monthStart, minuteStart), now,
-      });
-
-      if (totals.ip_minute >= limit.ipPerMinute) {
-        throw blocked('ip_rate_limit', 'Too many requests. Please wait a minute.', totals.ip_oldest + 60_000, now);
+        SELECT COUNT(*) AS count, MIN(created_ms) AS oldest
+        FROM requests WHERE created_ms > ? AND created_ms <= ?
+      `).get(now - 60_000, now);
+      if (totals.count >= this.#limits.globalPerMinute) {
+        throw blocked('global_rate_limit', `The site-wide limit is ${this.#limits.globalPerMinute} requests per minute. Please try again shortly.`, totals.oldest + 60_000, now);
       }
-      if (totals.ip_day >= limit.ipPerDay) {
-        throw blocked('ip_daily_limit', 'Your daily message limit has been reached. Please try tomorrow.', dayEnd, now);
-      }
-      if (totals.global_minute >= limit.globalPerMinute) {
-        throw blocked('global_rate_limit', 'The assistant is busy. Please try again shortly.', totals.global_oldest + 60_000, now);
-      }
-      if (totals.global_day >= limit.globalPerDay) {
-        throw blocked('global_daily_limit', 'The assistant has reached its daily limit. Please try tomorrow.', dayEnd, now);
-      }
-      if (totals.global_month >= limit.globalPerMonth) {
-        throw blocked('global_monthly_limit', 'The assistant has reached its monthly limit.', monthEnd, now);
-      }
-      if (costMicrousd > limit.dailyBudgetMicrousd - totals.cost_day) {
-        throw blocked('daily_budget_limit', 'The assistant has reached its daily usage budget. Please try tomorrow.', dayEnd, now);
-      }
-      if (costMicrousd > limit.monthlyBudgetMicrousd - totals.cost_month) {
-        throw blocked('monthly_budget_limit', 'The assistant has reached its monthly usage budget.', monthEnd, now);
-      }
-
       const id = randomUUID();
+      // Keep the existing schema/history; old per-network rows also count toward
+      // the shared minute window. New rows no longer identify visitors.
       this.#db.prepare(`
         INSERT INTO requests (id, identity, created_ms, cost_microusd, status)
-        VALUES (?, ?, ?, ?, 'reserved')
-      `).run(id, identityKey, now, costMicrousd);
+        VALUES (?, 'global', ?, ?, 'reserved')
+      `).run(id, now, costMicrousd);
       this.#db.exec('COMMIT');
-      return {
-        id,
-        remainingToday: Math.max(0, Math.min(limit.ipPerDay - totals.ip_day - 1, limit.globalPerDay - totals.global_day - 1)),
-      };
+      return { id };
     } catch (error) {
       this.#db.exec('ROLLBACK');
       throw error;

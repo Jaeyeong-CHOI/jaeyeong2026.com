@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { createChatServer, MODEL, normalizeIP, reserveCost, validateInput } from './app.mjs';
+import { createChatServer, MODEL, reserveCost, validateInput } from './app.mjs';
+import { UsageLimiter } from './limiter.mjs';
 
 const ORIGIN = 'https://jaeyeong2026.com';
 const CONFIG = {
-  identitySalt: 'test-identity-salt-with-at-least-32-characters',
   prompt: 'Only use the public profile. This is a test prompt.',
   apiKey: 'sk-test-secret-not-a-real-key',
-  enabled: true, promptReady: true, origins: [ORIGIN], localTest: false,
+  enabled: true, promptReady: true, origins: [ORIGIN],
 };
 const providerResult = (text = 'A public-profile answer.') => ({
   ok: true,
@@ -16,9 +16,9 @@ const providerResult = (text = 'A public-profile answer.') => ({
 });
 const fakeLimiter = () => ({
   reservations: [], finishes: [],
-  reserve(identity, cost) {
-    this.reservations.push({ identity, cost });
-    return { id: this.reservations.length, remainingToday: 19 };
+  reserve(cost) {
+    this.reservations.push({ cost });
+    return { id: this.reservations.length };
   },
   finish(id, usage) { this.finishes.push({ id, usage }); },
 });
@@ -67,6 +67,9 @@ test('disabled or unready configuration exposes friendly status and never calls 
     assert.equal(status.json.enabled, false);
     assert.match(status.json.message, /coming soon/i);
     assert.equal(status.json.limits.maxHistoryMessages, 6);
+    assert.equal(status.json.limits.perMinute, 5);
+    assert.equal(status.json.limits.scope, 'global');
+    assert.equal(Object.hasOwn(status.json.limits, 'perDay'), false);
     assert.equal((await request()).status, 503);
     assert.equal(calls, 0);
     assert.equal(limiter.reservations.length, 0);
@@ -90,20 +93,25 @@ test('exact origin whitelist, preflight, no CORS reflection on rejected origins,
   assert.deepEqual(health.json, { ok: true });
 });
 
-test('production requires trusted CF identity; X-Forwarded-For cannot replace or rotate it', async (t) => {
-  const { request, limiter } = await fixture(t);
-  for (const headers of [{}, { 'X-Forwarded-For': '198.51.100.23' }]) {
-    const result = await request({ omitCF: true, headers });
-    assert.equal(result.status, 403);
-    assert.equal(result.json.error.code, 'invalid_client');
+test('all visitors share five requests per minute regardless of IP, forwarded headers or absent identity', async (t) => {
+  const limiter = new UsageLimiter({ dbPath: ':memory:' });
+  let calls = 0;
+  const { request } = await fixture(t, { limiter, fetchImpl: async () => { calls++; return providerResult(); } });
+  t.after(() => limiter.close());
+  for (let i = 0; i < 5; i++) {
+    const result = await request({
+      omitCF: i === 0,
+      headers: { ...(i ? { 'CF-Connecting-IP': `203.0.113.${i}` } : {}), 'X-Forwarded-For': `198.51.100.${i}` },
+    });
+    assert.equal(result.status, 200);
+    assert.deepEqual(Object.keys(result.json), ['reply']);
   }
-  for (const ip of ['127.0.0.1', '198.51.100.200']) {
-    assert.equal((await request({ headers: { 'X-Forwarded-For': ip } })).status, 200);
-  }
-  assert.equal(limiter.reservations[0].identity, limiter.reservations[1].identity);
-  assert.match(limiter.reservations[0].identity, /^[a-f0-9]{64}$/);
-  assert.ok(!limiter.reservations[0].identity.includes('203.0.113.12'));
-  assert.equal((await request({ headers: { 'CF-Connecting-IP': '203.0.113.12, 198.51.100.1' } })).status, 403);
+  const result = await request({ headers: { 'CF-Connecting-IP': '2001:db8::2', 'X-Forwarded-For': '192.0.2.200' } });
+  assert.equal(result.status, 429);
+  assert.equal(result.json.error.code, 'global_rate_limit');
+  assert.ok(Number(result.headers['retry-after']) > 0 && Number(result.headers['retry-after']) <= 60);
+  assert.equal(result.json.error.retryAfter, Number(result.headers['retry-after']));
+  assert.equal(calls, 5);
 });
 
 test('malformed, oversized, model override, role injection and invalid turn histories never spend quota', async (t) => {
@@ -129,7 +137,7 @@ test('malformed, oversized, model override, role injection and invalid turn hist
   assert.equal((await request({ headers: { 'Content-Encoding': 'gzip' } })).status, 415);
   assert.equal(calls, 0);
   assert.equal(limiter.reservations.length, 0);
-  // Malformed input must release its acquired concurrency slot.
+  // Malformed input must leave quota available.
   assert.equal((await request()).status, 200);
 });
 
@@ -142,7 +150,9 @@ test('provider request fixes model, prompt, token ceiling and no-store without s
   const history = [{ role: 'user', content: 'Earlier question' }, { role: 'assistant', content: 'Earlier answer' }];
   const result = await request({ body: { message: '  New question  ', history } });
   assert.equal(result.status, 200);
-  assert.equal(result.json.remainingToday, 19);
+  assert.deepEqual(Object.keys(result.json), ['reply']);
+  assert.ok(limiter.reservations[0].cost > 0);
+  assert.deepEqual(Object.keys(limiter.reservations[0]), ['cost']);
   assert.equal(outbound.url, 'https://api.openai.com/v1/responses');
   assert.equal(outbound.body.model, MODEL);
   assert.equal(outbound.body.instructions, CONFIG.prompt);
@@ -159,7 +169,7 @@ test('provider request fixes model, prompt, token ceiling and no-store without s
   assert.equal(result.headers['x-content-type-options'], 'nosniff');
 });
 
-test('provider errors and payload details are sanitized, reservations remain spent, slots release', async (t) => {
+test('provider errors and payload details are sanitized and reservations remain spent', async (t) => {
   for (const failure of [
     async () => { throw new Error(`${CONFIG.apiKey} private provider details`); },
     async () => ({ ok: false, json: async () => ({ error: { message: CONFIG.apiKey } }) }),
@@ -180,66 +190,67 @@ test('provider errors and payload details are sanitized, reservations remain spe
   }
 });
 
-test('concurrent rejections do not release another request’s per-IP or global slot', async (t) => {
+test('five concurrent requests from one IP are allowed; sixth is denied before provider invocation', { timeout: 5000 }, async (t) => {
+  const limiter = new UsageLimiter({ dbPath: ':memory:' });
   const pending = [];
-  const arrived = [];
-  const { request, limiter } = await fixture(t, { fetchImpl: async () => {
-    let release;
-    const result = new Promise((resolve) => { release = () => resolve(providerResult()); });
-    pending.push(release);
-    arrived.shift()?.();
+  let arrived;
+  const allArrived = new Promise(resolve => { arrived = resolve; });
+  const { request } = await fixture(t, { limiter, fetchImpl: async () => {
+    const result = new Promise(resolve => pending.push(() => resolve(providerResult())));
+    if (pending.length === 5) arrived();
     return result;
   } });
-  const waitFor = (count) => pending.length >= count ? Promise.resolve() : new Promise((resolve) => arrived.push(resolve));
-  const first = request();
-  await waitFor(1);
-  for (let i = 0; i < 2; i++) {
+  t.after(() => limiter.close());
+  const requests = Array.from({ length: 5 }, () => request());
+  let deadline;
+  try {
+    await Promise.race([
+      allArrived,
+      new Promise((_, reject) => { deadline = setTimeout(() => reject(new Error('Five same-IP requests did not reach the provider')), 1500); }),
+    ]);
+    clearTimeout(deadline);
     const rejected = await request();
     assert.equal(rejected.status, 429);
-    assert.equal(rejected.json.error.code, 'request_in_progress');
+    assert.equal(rejected.json.error.code, 'global_rate_limit');
+    assert.equal(pending.length, 5);
+  } finally {
+    clearTimeout(deadline);
+    pending.forEach(release => release());
   }
-  const second = request({ headers: { 'CF-Connecting-IP': '203.0.113.13' } });
-  await waitFor(2);
-  for (let i = 0; i < 2; i++) {
-    const rejected = await request({ headers: { 'CF-Connecting-IP': '203.0.113.14' } });
-    assert.equal(rejected.status, 429);
-    assert.equal(rejected.json.error.code, 'server_busy');
-  }
-  assert.equal(limiter.reservations.length, 2);
-  pending[0]();
-  pending[1]();
-  assert.equal((await first).status, 200);
-  assert.equal((await second).status, 200);
-  const third = request({ headers: { 'CF-Connecting-IP': '203.0.113.14' } });
-  await waitFor(3);
-  pending[2]();
-  assert.equal((await third).status, 200);
+  const responses = await Promise.all(requests);
+  assert.ok(responses.every(response => response.status === 200));
+  assert.equal((await request()).status, 429);
+  assert.equal(pending.length, 5);
 });
 
-test('limiter rejection never calls upstream and releases active slot', async (t) => {
+test('provider failures consume the same five-attempt rolling limit', async (t) => {
+  const limiter = new UsageLimiter({ dbPath: ':memory:' });
+  let calls = 0;
+  const { request } = await fixture(t, { limiter, fetchImpl: async () => { calls++; throw new Error('upstream failed'); } });
+  t.after(() => limiter.close());
+  for (let i = 0; i < 5; i++) assert.equal((await request()).status, 503);
+  const rejected = await request();
+  assert.equal(rejected.status, 429);
+  assert.equal(rejected.json.error.code, 'global_rate_limit');
+  assert.equal(calls, 5);
+});
+
+test('limiter rejection never calls upstream and preserves retry timing', async (t) => {
   const limiter = fakeLimiter();
   const normalReserve = limiter.reserve;
   let calls = 0;
   limiter.reserve = function (...args) {
-    if (!calls++) throw Object.assign(new Error('Daily request limit reached.'), { status: 429, code: 'daily_limit', retryAfter: 100 });
+    if (!calls++) throw Object.assign(new Error('Shared request limit reached.'), { status: 429, code: 'global_rate_limit', retryAfter: 10 });
     return normalReserve.apply(this, args);
   };
   let upstream = 0;
   const { request } = await fixture(t, { limiter, fetchImpl: async () => { upstream++; return providerResult(); } });
   const rejected = await request();
   assert.equal(rejected.status, 429);
-  assert.equal(rejected.headers['retry-after'], '100');
+  assert.equal(rejected.headers['retry-after'], '10');
+  assert.equal(rejected.json.error.retryAfter, 10);
   assert.equal(upstream, 0);
   assert.equal((await request()).status, 200);
-});
-
-test('IPv4-mapped IPv6 and IPv6 /64 normalization prevent quota rotation', () => {
-  assert.equal(normalizeIP('192.0.2.3'), normalizeIP('::ffff:192.0.2.3'));
-  assert.equal(normalizeIP('192.0.2.3'), normalizeIP('0:0:0:0:0:ffff:c000:0203'));
-  assert.equal(normalizeIP('2001:db8:ABCD:1234::1'), normalizeIP('2001:0DB8:abcd:1234:ffff:eeee:dddd:cccc'));
-  assert.equal(normalizeIP('2001:db8:abcd:1234::1'), '2001:0db8:abcd:1234::/64');
-  assert.notEqual(normalizeIP('2001:db8:abcd:1234::1'), normalizeIP('2001:db8:abcd:1235::1'));
-  for (const ip of [undefined, '', 'not an IP', '127.000.0.1', 'fe80::1%en0', '1.2.3.4, 5.6.7.8']) assert.throws(() => normalizeIP(ip));
 });
 
 test('cost reservation includes UTF-8 bytes, message overhead, fixed output and margin', () => {
@@ -254,8 +265,7 @@ test('cost reservation includes UTF-8 bytes, message overhead, fixed output and 
   assert.equal(validateInput({ message: 'a'.repeat(1000), history: boundaryHistory }).length, 5);
 });
 
-test('configuration rejects weak identity salts and excessively large prompts', () => {
-  assert.throws(() => createChatServer({ config: { ...CONFIG, identitySalt: 'short' }, limiter: fakeLimiter() }), /Identity salt/);
+test('configuration rejects excessively large prompts and missing origins', () => {
   assert.throws(() => createChatServer({ config: { ...CONFIG, prompt: 'a'.repeat(16385) }, limiter: fakeLimiter() }), /16 KB/);
   assert.throws(() => createChatServer({ config: { ...CONFIG, origins: [] }, limiter: fakeLimiter() }), /Origins required/);
 });

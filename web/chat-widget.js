@@ -4,7 +4,7 @@
   const script = document.currentScript;
   const apiBase = (script?.dataset.apiBase || "").replace(/\/$/, "");
   const defaults = {
-    perMinute: 5, perDay: 20, maxMessageChars: 1000,
+    perMinute: 5, maxMessageChars: 1000,
     maxHistoryMessages: 6, maxHistoryChars: 6000,
   };
   let limits = { ...defaults };
@@ -15,7 +15,6 @@
   let controller = null;
   let cooldownUntil = 0;
   let cooldownTimer = null;
-  let remainingToday = null;
   let previousFocus = null;
 
   const root = document.createElement("div");
@@ -103,9 +102,7 @@
     count.classList.toggle("is-over-limit", input.value.length > limits.maxMessageChars);
     input.setAttribute("aria-invalid", String(input.value.length > limits.maxMessageChars));
     input.maxLength = limits.maxMessageChars;
-    quota.textContent = remainingToday === null
-      ? `Up to ${limits.perMinute} requests / min · ${limits.perDay} / day per network`
-      : `${remainingToday} requests left today on this network · ${limits.perMinute} / min`;
+    quota.textContent = `Up to ${limits.perMinute} requests / min across all visitors`;
     retry.disabled = busy || coolingDown;
   };
 
@@ -221,7 +218,7 @@
     showNotice("A short pause", `The request limit has been reached. Please try again in about ${when}. Starting a new chat does not reset the limit.`, "Try again");
     cooldownTimer = setTimeout(() => {
       cooldownUntil = 0;
-      showNotice("Ready to try again", "You can retry your question now. Shared-network limits may still apply.", "Try again");
+      showNotice("Ready to try again", "You can retry your question now. The site-wide minute limit may still apply.", "Try again");
       refreshControls();
     }, duration * 1000);
   };
@@ -270,7 +267,6 @@
       pendingBubble.remove();
       addBubble("assistant", data.reply);
       history = boundedHistory([...previousHistory, { role: "user", content: message }, { role: "assistant", content: data.reply }]);
-      if (Number.isSafeInteger(data.remainingToday) && data.remainingToday >= 0) remainingToday = data.remainingToday;
     } catch {
       if (id !== requestId) return;
       userBubble.remove();

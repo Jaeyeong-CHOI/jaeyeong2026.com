@@ -4,8 +4,8 @@ Static frontend: `web/chat-widget.js` and `web/chat-widget.css`, deployed by Git
 
 ## Private runtime files (never commit or place in web/)
 
-- `~/.config/jaeyeong2026-chat/secrets.env`: `OPENAI_API_KEY`, persistent random `CHAT_IDENTITY_SALT` (at least 32 chars), mode 600.
-- `~/.config/jaeyeong2026-chat/config.json`: enabled/promptReady flags, port, origin allowlist, promptFile, dbPath. `localTest` must remain false in production.
+- `~/.config/jaeyeong2026-chat/secrets.env`: `OPENAI_API_KEY`, mode 600. A legacy `CHAT_IDENTITY_SALT` may remain but is no longer used.
+- `~/.config/jaeyeong2026-chat/config.json`: enabled/promptReady flags, port, origin allowlist, promptFile, dbPath.
 - `~/.config/jaeyeong2026-chat/system-prompt.md`: final server-side instructions, maximum 16 KB.
 - `~/.local/share/jaeyeong2026-chat/usage.sqlite`: counters and conservative cost reservations, mode 600.
 
@@ -26,20 +26,19 @@ The initial deployment is **disabled**, displaying Coming soon. After installing
 /opt/homebrew/bin/node server/manage.mjs disable
 ```
 
-Do not reset the salt/database to clear limits. There is no public administration endpoint.
+Do not reset the database to clear limits. There is no public administration endpoint.
 
 ## Cost and abuse controls
 
 - Fixed `gpt-6-luna`, reasoning `none`, Standard tier, `store:false`, text only, 400 maximum output tokens; no tools, model override, automatic retry, or expensive fallback.
-- Per IP: 5 requests per rolling minute, 20 per day. IPv6 grouped by /64. Shared networks share quota.
-- Global: 10/minute, 200/day, 3,000/month; 2 concurrent provider calls, 1 per IP.
-- Conservative reserved budget: $0.25/day and $3/month. KST day/month boundaries. All attempts that reach the provider count, including failures/timeouts.
-- Uses UTF-8 byte upper bound plus framing and 20% margin, $0.125/1M input (higher cache-write rate), $0.50/1M output. These application estimates are conservative, not an OpenAI account-wide invoice cap. Recheck prices before changing model/tier. Other uses of the shared key are outside this app's limits.
+- One site-wide limit: **5 requests per rolling 60 seconds**, shared by all visitors. No user/IP, daily, monthly, budget, or separate in-flight admission caps.
+- All attempts that reach the provider count, including failures/timeouts. Conservative cost estimates are recorded for diagnostics only; they do not block requests.
+- Uses UTF-8 byte upper bound plus framing and 20% margin, $0.125/1M input (higher cache-write rate), $0.50/1M output. These application estimates are conservative diagnostics, not a spending cap. Recheck prices before changing model/tier.
 - SQLite transaction reserves cost/quota before sending. Restarting the server, refreshing, or New chat does not reset limits.
 - 1,000 characters per message; 6 history messages/6,000 characters; 32 KB body; 8-second body deadline and 45-second upstream timeout.
-- Only exact allowed origins. Production uses `CF-Connecting-IP` through a loopback-only Cloudflare Tunnel, never arbitrary X-Forwarded-For. Do not bind the API to a public/LAN interface or add an untrusted local proxy. Origin checks are not authentication; persistent global caps protect against distributed abuse.
+- Only exact allowed origins, through a loopback-only Cloudflare Tunnel. No client IP/cookie identity is used for quotas. Do not bind the API to a public/LAN interface or add an untrusted local proxy. Origin checks are not authentication; the persistent shared minute cap applies regardless of identity headers.
 
-Only HMAC network identities, timestamps, reservation costs and token counts are recorded; no prompts/replies or raw IP addresses in this app's usage DB/logs. Records older than 90 days are pruned at server start. Cloudflare/OpenAI have their own processing policies; `store:false` does not imply zero retention.
+New records use a fixed `global` marker, timestamps, reservation costs and token counts; legacy HMAC identity rows are retained until normal expiry and count in the same minute window; no prompts/replies or raw IP addresses in this app's usage DB/logs. Records older than 90 days are pruned at server start. Cloudflare/OpenAI have their own processing policies; `store:false` does not imply zero retention.
 
 ## Verification
 
@@ -50,4 +49,4 @@ Only HMAC network identities, timestamps, reservation costs and token counts are
 
 `GET /healthz` -> 200. `GET /v1/status` with allowed Origin reports availability and UI limits. `POST /v1/chat` accepts only `{message, history}`; 429 includes Retry-After; disabled returns 503 without contacting OpenAI. Tests use mocks and temporary SQLite files, not paid requests.
 
-Official references (checked 2026-10-21): [model/pricing](https://developers.openai.com/api/docs/models/gpt-6-luna), [Cloudflare client IP](https://developers.cloudflare.com/fundamentals/reference/http-headers/).
+Official references (checked 2026-10-21): [model/pricing](https://developers.openai.com/api/docs/models/gpt-6-luna).
