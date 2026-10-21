@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { MAX_PROMPT_BYTES } from './constants.mjs';
 
 const action = process.argv[2];
 if (!['status', 'enable', 'disable'].includes(action)) {
@@ -12,9 +13,9 @@ const path = process.env.CHAT_CONFIG || join(homedir(), '.config/jaeyeong2026-ch
 const config = JSON.parse(readFileSync(path, 'utf8'));
 if (action !== 'status') {
   if (action === 'enable') {
-    const prompt = readFileSync(config.promptFile, 'utf8').trim();
-    if (!prompt || prompt.includes('PROMPT_PENDING') || Buffer.byteLength(prompt) > 16384) {
-      console.error('Install the final system prompt first (nonempty, at most 16 KB).');
+    const prompt = readFileSync(config.promptFile, 'utf8');
+    if (!prompt.trim() || prompt.includes('PROMPT_PENDING') || Buffer.byteLength(prompt) > MAX_PROMPT_BYTES) {
+      console.error(`Install the final system prompt first (nonempty, at most ${MAX_PROMPT_BYTES / 1024} KiB).`);
       process.exit(1);
     }
   }

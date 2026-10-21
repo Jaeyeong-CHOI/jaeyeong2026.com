@@ -6,14 +6,14 @@ Static frontend: `web/chat-widget.js` and `web/chat-widget.css`, deployed by Git
 
 - `~/.config/jaeyeong2026-chat/secrets.env`: `OPENAI_API_KEY`, mode 600. A legacy `CHAT_IDENTITY_SALT` may remain but is no longer used.
 - `~/.config/jaeyeong2026-chat/config.json`: enabled/promptReady flags, port, origin allowlist, promptFile, dbPath.
-- `~/.config/jaeyeong2026-chat/system-prompt.md`: final server-side instructions, maximum 16 KB.
+- `~/.config/jaeyeong2026-chat/system-prompt.md`: final server-side instructions, maximum 32 KiB of UTF-8 text (32,768 bytes, including separators and whitespace). Runtime and activation checks share this bound in `server/constants.mjs`.
 - `~/.local/share/jaeyeong2026-chat/usage.sqlite`: counters and conservative cost reservations, mode 600.
 
 Launch with `node --env-file=<private secrets.env> server/server.mjs`. macOS service labels: `ai.openclaw.jaeyeong-chat` and `ai.openclaw.cloudflared.jaeyeong-chat`. Both restart at login or process failure. The Mac must remain running and connected.
 
 ## Prompt handoff / kill switch
 
-The initial deployment is **disabled**, displaying Coming soon. After installing the final prompt in the private file, run:
+Production was activated on 2026-10-21 with the owner-supplied three-module prompt. `manage.mjs status` reports the current state; disabling displays Coming soon. Combine the final role/rules, public profile and response examples into the private prompt file, in that order; do not place these source files in `web/`. After installing the final prompt, run:
 
 ```sh
 /opt/homebrew/bin/node server/manage.mjs enable
@@ -46,6 +46,8 @@ New records use a fixed `global` marker, timestamps, reservation costs and token
 /opt/homebrew/bin/node --test server/*.test.mjs
 /opt/homebrew/bin/node --check web/chat-widget.js
 ```
+
+The minimal widget uses text controls without decorative icons, avatars or gradients. `web/chat-format.js` renders only bold text and approved profile links using DOM text nodes, never raw response HTML.
 
 `GET /healthz` -> 200. `GET /v1/status` with allowed Origin reports availability and UI limits. `POST /v1/chat` accepts only `{message, history}`; 429 includes Retry-After; disabled returns 503 without contacting OpenAI. Tests use mocks and temporary SQLite files, not paid requests.
 

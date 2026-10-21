@@ -19,33 +19,23 @@
 
   const root = document.createElement("div");
   root.className = "jae-chat";
-  // This template is static. All visitor and API text is inserted with textContent.
+  // This template is static. Dynamic content uses text nodes and a restricted inline formatter.
   root.innerHTML = `
-    <button class="jae-chat-launcher" type="button" aria-haspopup="dialog" aria-controls="jae-chat-dialog" aria-expanded="false">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H9l-5 3v-6.5a7.5 7.5 0 1 1 16-4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 10.5h7m-7 3h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      <span>Ask Jae’s AI</span>
-    </button>
+    <button class="jae-chat-launcher" type="button" aria-haspopup="dialog" aria-controls="jae-chat-dialog" aria-expanded="false">Ask about Jae</button>
     <dialog class="jae-chat-dialog" id="jae-chat-dialog" aria-labelledby="jae-chat-title" aria-describedby="jae-chat-description">
       <div class="jae-chat-shell">
-        <div class="jae-chat-header">
-          <span class="jae-chat-avatar" aria-hidden="true">J.</span>
+        <header class="jae-chat-header">
           <div class="jae-chat-heading">
             <h2 id="jae-chat-title">Ask about Jae</h2>
-            <p id="jae-chat-description">A little curiosity, a conversation.</p>
+            <p class="jae-chat-availability" id="jae-chat-description">AI profile assistant</p>
           </div>
-          <button class="jae-chat-close jae-chat-icon-button" type="button" aria-label="Close chat" autofocus>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          </button>
-        </div>
-        <div class="jae-chat-toolbar">
-          <span class="jae-chat-availability">AI profile assistant</span>
           <button class="jae-chat-clear" type="button" title="Clear this conversation. Request limits do not reset." disabled>New chat</button>
-        </div>
+          <button class="jae-chat-close" type="button" aria-label="Close chat" autofocus>Close</button>
+        </header>
         <div class="jae-chat-messages" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions">
-          <div class="jae-chat-intro">
-            <span class="jae-chat-intro-mark" aria-hidden="true">✳</span>
-            <h3>Curious about Jae?</h3>
-            <p>Research, projects, or the next adventure.<br>Start with a question.</p>
+          <div class="jae-chat-intro" lang="ko">
+            <h3>최재영에게 궁금한 게 있으신가요?</h3>
+            <p>연구, 프로젝트, 강의에 대해<br>편하게 물어보세요.</p>
           </div>
         </div>
         <div class="jae-chat-notice" role="status" hidden>
@@ -53,21 +43,19 @@
           <p class="jae-chat-notice-text"></p>
           <div class="jae-chat-notice-actions">
             <button class="jae-chat-retry" type="button" hidden>Retry</button>
-            <a href="mailto:jaeyeong2022@gmail.com">Email Jae ↗</a>
+            <a href="mailto:jaeyeong2022@gmail.com">Email Jae</a>
           </div>
         </div>
         <form class="jae-chat-form">
           <label class="jae-chat-sr-only" for="jae-chat-message">Your question for Jae’s AI</label>
           <div class="jae-chat-input-row">
-            <textarea id="jae-chat-message" rows="2" maxlength="1000" placeholder="Ask a question…" aria-describedby="jae-chat-input-help jae-chat-count" disabled></textarea>
-            <button class="jae-chat-send jae-chat-icon-button" type="submit" aria-label="Send message" disabled>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
+            <textarea id="jae-chat-message" rows="2" maxlength="1000" placeholder="궁금한 점을 입력하세요…" aria-describedby="jae-chat-input-help jae-chat-count" disabled></textarea>
+            <button class="jae-chat-send" type="submit" aria-label="Send message" disabled>Send</button>
           </div>
           <div class="jae-chat-input-meta"><span id="jae-chat-input-help">Enter to send · Shift + Enter for a new line</span><span id="jae-chat-count">0 / 1,000</span></div>
           <p class="jae-chat-quota"></p>
         </form>
-        <p class="jae-chat-disclaimer">AI can make mistakes. Messages are sent to OpenAI.<br>Please don’t share sensitive information.</p>
+        <p class="jae-chat-disclaimer">AI answers may be inaccurate. Messages are sent to OpenAI.</p>
         <span class="jae-chat-sr-only jae-chat-announcement" role="status" aria-live="polite"></span>
       </div>
     </dialog>`;
@@ -125,7 +113,11 @@
     label.className = "jae-chat-bubble-label";
     label.textContent = role === "user" ? "You" : "Jae’s AI";
     const content = document.createElement("p");
-    content.textContent = text;
+    if (role === "assistant" && !pending && window.JaeChatText) {
+      window.JaeChatText.append(content, text);
+    } else {
+      content.textContent = text;
+    }
     bubble.append(label, content);
     intro.hidden = true;
     log.append(bubble);
@@ -186,7 +178,7 @@
           ? Math.min(value, defaults[key]) : defaults[key];
       }
       availability = data.enabled ? "enabled" : "disabled";
-      availabilityLabel.textContent = data.enabled ? "Ready for your questions" : "Coming soon";
+      availabilityLabel.textContent = data.enabled ? "AI profile assistant" : "Coming soon";
       if (data.enabled) {
         hideNotice();
         if (dialog.open) input.disabled = false;

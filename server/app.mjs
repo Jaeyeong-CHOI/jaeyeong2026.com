@@ -1,5 +1,6 @@
 import http from 'node:http';
 import { RATE_LIMIT_PER_MINUTE } from './limiter.mjs';
+import { MAX_PROMPT_BYTES } from './constants.mjs';
 
 export const PUBLIC_LIMITS = Object.freeze({ perMinute: RATE_LIMIT_PER_MINUTE, scope: 'global', maxMessageChars: 1000, maxHistoryMessages: 6, maxHistoryChars: 6000 });
 const MAX_BODY_BYTES = 32768;
@@ -47,7 +48,7 @@ async function readBody(req) {
 
 export function createChatServer({ config, limiter, fetchImpl = fetch }) {
   if (!Array.isArray(config.origins) || config.origins.length === 0) throw new Error('Origins required');
-  if (Buffer.byteLength(config.prompt || '') > 16384) throw new Error('Prompt must be at most 16 KB');
+  if (Buffer.byteLength(config.prompt || '') > MAX_PROMPT_BYTES) throw new Error(`Prompt must be at most ${MAX_PROMPT_BYTES / 1024} KiB`);
   const enabled = config.enabled === true && config.promptReady === true && Boolean(config.apiKey) && Boolean(config.prompt?.trim());
   const server = http.createServer({ maxHeaderSize: 8192, requestTimeout: 10000, headersTimeout: 10000 }, async (req, res) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');

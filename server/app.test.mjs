@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import { createChatServer, MODEL, reserveCost, validateInput } from './app.mjs';
 import { UsageLimiter } from './limiter.mjs';
+import { MAX_PROMPT_BYTES } from './constants.mjs';
 
 const ORIGIN = 'https://jaeyeong2026.com';
 const CONFIG = {
@@ -265,7 +266,19 @@ test('cost reservation includes UTF-8 bytes, message overhead, fixed output and 
   assert.equal(validateInput({ message: 'a'.repeat(1000), history: boundaryHistory }).length, 5);
 });
 
-test('configuration rejects excessively large prompts and missing origins', () => {
-  assert.throws(() => createChatServer({ config: { ...CONFIG, prompt: 'a'.repeat(16385) }, limiter: fakeLimiter() }), /16 KB/);
+test('a 32 KiB UTF-8 prompt reaches the provider intact, with oversized prompts rejected', async (t) => {
+  assert.equal(MAX_PROMPT_BYTES, 32768);
+  const prompt = '가'.repeat(Math.floor(MAX_PROMPT_BYTES / 3)) + 'a'.repeat(MAX_PROMPT_BYTES % 3);
+  assert.equal(Buffer.byteLength(prompt), MAX_PROMPT_BYTES);
+  let sentPrompt;
+  const { request } = await fixture(t, { config: { prompt }, fetchImpl: async (_url, options) => {
+    sentPrompt = JSON.parse(options.body).instructions;
+    return providerResult();
+  } });
+  assert.equal((await request()).status, 200);
+  assert.equal(sentPrompt, prompt);
+  for (const oversized of [prompt + 'a', '가'.repeat(Math.ceil(MAX_PROMPT_BYTES / 3))]) {
+    assert.throws(() => createChatServer({ config: { ...CONFIG, prompt: oversized }, limiter: fakeLimiter() }), /32 KiB/);
+  }
   assert.throws(() => createChatServer({ config: { ...CONFIG, origins: [] }, limiter: fakeLimiter() }), /Origins required/);
 });
