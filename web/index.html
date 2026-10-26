@@ -327,6 +327,10 @@
       align-items: start;
     }
     .news-item + .news-item { margin-top: 20px; }
+    .news-item[hidden] { display: none; }
+    .news-item.is-last-visible::before { display: none; }
+    .news-more { margin-top: 28px; text-align: center; }
+    .news-more .button { min-width: 108px; cursor: pointer; }
     .news-item:not(:last-child)::before {
       content: "";
       position: absolute;
@@ -658,7 +662,7 @@
           </div>
           <span class="news-year">2026</span>
         </header>
-        <ol class="news-timeline" aria-labelledby="news-title" role="list">
+        <ol class="news-timeline" id="news-timeline" aria-labelledby="news-title" role="list">
           <li class="news-item" id="hankyung-business-interview-2026">
             <time class="news-date" datetime="2026-10-26">Oct 26, 2026</time>
             <span class="news-marker" aria-hidden="true">📰</span>
@@ -731,6 +735,9 @@
             </article>
           </li>
         </ol>
+        <div class="news-more" hidden>
+          <button class="button" id="news-toggle" type="button" aria-controls="news-timeline" aria-expanded="false">More</button>
+        </div>
       </div>
     </section>
 
@@ -979,7 +986,7 @@
     </div>
   </footer>
 
-  <script src="app.js?v=20261019" defer></script>
+  <script src="app.js?v=20261026-news" defer></script>
   <script src="chat-format.js?v=20261021-minimal" defer></script>
   <script src="chat-widget.js?v=20261021-minimal" data-api-base="https://chat-api.jaeyeong2026.com" defer></script>
 </body>
