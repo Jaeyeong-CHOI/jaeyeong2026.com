@@ -1,14 +1,14 @@
 /*
  * Christmas 2026 event popup for jaeyeong2026.com
  * A ray-cast ASCII tree rendered into a monospace grid on <canvas>, on a plain black panel.
- * Shown automatically once per session between 2026-11-13 and 2026-12-31 (KST).
+ * Shown automatically once per session between 2026-11-13 and 2026-12-25 (KST); off from Dec 26.
  * Force it anytime with ?xmas
  */
 (() => {
   "use strict";
 
   const START = Date.parse("2026-11-13T00:00:00+09:00");
-  const END = Date.parse("2027-01-01T00:00:00+09:00");
+  const END = Date.parse("2026-12-26T00:00:00+09:00");
   const forced = new URLSearchParams(location.search).has("xmas");
   const nowMs = Date.now();
   if (!forced && (nowMs < START || nowMs >= END)) return;
