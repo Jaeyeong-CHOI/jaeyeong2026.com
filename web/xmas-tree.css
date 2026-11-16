@@ -1,5 +1,5 @@
 /* Christmas 2026 event popup: a rotating ASCII tree on a plain black panel.
-   Typography, radius, line and accent colours follow the main page and the chat widget. */
+   Typography, radius, line and accent colours follow the main page. */
 .xt-root {
   --xt-accent: var(--accent, #0b4a7d);
   --xt-line: var(--line, #dce1e5);
@@ -97,7 +97,7 @@
 .xt-noshow-label:hover { color: rgba(255, 255, 255, 0.85); }
 .xt-noshow { margin: 0; accent-color: var(--xt-accent); }
 
-/* reopen button: outlined counterpart of the chat launcher, bottom left */
+/* reopen button, bottom left */
 .xt-launcher {
   position: fixed;
   left: max(24px, env(safe-area-inset-left));
