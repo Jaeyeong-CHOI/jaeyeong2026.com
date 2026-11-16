@@ -120,13 +120,12 @@
     root.className = "xt-root";
     root.innerHTML = `
       <div class="xt-backdrop" hidden>
-        <section class="xt-window" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="xt-title">
+        <section class="xt-window" tabindex="-1" role="dialog" aria-modal="true" aria-label="Christmas tree">
           <button type="button" class="xt-close" data-xt-close>Close</button>
           <div class="xt-stage" role="img" aria-label="Rotating ASCII Christmas tree with twinkling lights, ornaments, gifts and falling snow">
             <canvas class="xt-canvas" aria-hidden="true"></canvas>
           </div>
           <footer class="xt-foot">
-            <p class="xt-greeting" id="xt-title"><strong>Merry Christmas</strong> &amp; Happy New Year <span class="xt-by">— Jae Y. Choi</span></p>
             <label class="xt-noshow-label"><input type="checkbox" class="xt-noshow"> Don’t show again today</label>
           </footer>
         </section>
